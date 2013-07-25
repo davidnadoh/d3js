@@ -46,37 +46,42 @@
 	<script type="text/javascript" src="../lib/d3.v3.js"></script>
 
 	<script>
-		var margin = {top: 30, right: 20, bottom: 30, left: 50},
+		var margin = {top: 30, right: 40, bottom: 30, left: 50},
 			width = 600 - margin.left - margin.right,
 			height = 270 - margin.top - margin.bottom;
 
 		var parseDate = d3.time.format("%d-%b-%y").parse;
 
 		var x = d3.time.scale().range([0,width]);
-		var y = d3.scale.linear().range([height,0]);
-
+		var y0 = d3.scale.linear().range([height,0]);
+		var y1 = d3.scale.linear().range([height,0]);
+		
 		var xAxis = d3.svg.axis().scale(x)
 			.orient("bottom")
 			.ticks(5);
 		
-		var yAxis = d3.svg.axis().scale(y)
+		var yAxis = d3.svg.axis().scale(y0)
 			.orient("left")
+			.ticks(5);
+
+		var yAxisRight = d3.svg.axis().scale(y1)
+			.orient("right")
 			.ticks(5);
 
 		var area = d3.svg.area()
 			.x(function(d){return x(d.date);})
 			.y0(height)
-			.y1(function(d){return y(d.close);});
+			.y1(function(d){return y1(d.close);});
 		
 			
 		var valueline = d3.svg.line()
 			.interpolate("linear")
 			.x(function(d) { return x(d.date); })
-			.y(function(d) { return y(d.close); });
+			.y(function(d) { return y0(d.close); });
 
 		var valueline2 = d3.svg.line()
 			.x(function(d) { return x(d.date); })
-			.y(function(d) { return y(d.open); });
+			.y(function(d) { return y1(d.open); });
 
 		var svg = d3.select("body")
 			.append("svg")
@@ -97,8 +102,11 @@
 			// Scale the range of the data
 			x
 				.domain(d3.extent(data, function(d) { return d.date; }));
-			y
-				.domain([0, d3.max(data, function(d) { return Math.max(d.close,d.open); })]);
+				
+			y0
+				.domain([0, d3.max(data, function(d) { return Math.max(d.close); })]);
+			y1
+				.domain([0, d3.max(data, function(d) { return Math.max(d.open); })]);
 			svg.append("path")
 				.datum(data)
 				.attr("class","area")
@@ -125,6 +133,12 @@
 			svg.append("g")
 				.attr("class", "y axis")
 				.call(yAxis);
+
+			svg.append("g")
+				.attr("class","y axis")
+				.attr("transform","translate("+width+",0)")
+				.style("fill","red")
+				.call(yAxisRight);
 
 			svg.append("text")
 				.attr("x", width/2)
