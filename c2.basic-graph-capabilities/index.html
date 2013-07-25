@@ -30,6 +30,11 @@
 		stroke-width: 0;
 	}
 
+	.area {
+		fill: lightsteelblue;
+		stroke-width: 0;
+	}
+
 </style>
 <body>
 	<script type="text/javascript" src="../lib/d3.v3.js"></script>
@@ -51,9 +56,14 @@
 		var yAxis = d3.svg.axis().scale(y)
 			.orient("left")
 			.ticks(5);
+
+		var area = d3.svg.area()
+			.x(function(d){return x(d.date);})
+			.y0(0)
+			.y1(function(d){return y(d.close);});
 		
 		var valueline = d3.svg.line()
-			.interpolate("basis-closed")
+			.interpolate("linear")
 			.x(function(d) { return x(d.date); })
 			.y(function(d) { return y(d.close); });
 			
@@ -78,35 +88,25 @@
 			y
 				.domain([0, d3.max(data, function(d) { return d.close; })]);
 			svg.append("path")
+				.datum(data)
+				.attr("class","area")
+				.attr("d",area);
+
+			svg.append("path")
+				.attr("class", "line")
 				.attr("d", valueline(data))
-				.style("stroke-dasharray",("3,3"));
 				
 			// Add the X Axis
 			svg.append("g")
 				.attr("class", "x axis")
 				.attr("transform", "translate(0," + height + ")")
-				.style("stroke-dasharray",("3,3"))
 				.call(xAxis);
 			
-
-			svg.append("text")
-				.attr("transform","translate("+ width/2 +","+ (height+margin.bottom) +")")
-				.style("text-anchor", "middle")
-				.text("Date");
 
 			// Add the Y Axis
 			svg.append("g")
 				.attr("class", "y axis")
-				.style("stroke-dasharray",("3,3"))
 				.call(yAxis);
-
-			svg.append("text")
-				.attr("transform","rotate(-90)")
-				.attr("y", 0 - margin.left)
-				.attr("x", 0 - height/2)
-				.attr("dy", "1em")
-				.style("text-anchor", "middle")
-				.text("Value");
 
 			svg.append("text")
 				.attr("x", width/2)
@@ -115,6 +115,7 @@
 				.style("font-size","16px")
 				.style("text-decoration","underline")
 				.text("Value vs Date Graph");
+
 
 		});
 	</script>
