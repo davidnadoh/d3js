@@ -45,10 +45,6 @@
 <body>
 	<script type="text/javascript" src="../lib/d3.v3.js"></script>
 
-	<div>
-		<input name="updateButton" type="button" value="update" onclick="updateData()"/>
-	</div>
-
 	<script>
 		var margin = {top: 30, right: 40, bottom: 70, left: 50}
 			width = 600 - margin.left - margin.right,
@@ -164,6 +160,9 @@
 
 			});
 		var current_data = "data-alt.tsv";
+		var dynanmicUpdate = setInterval(function(){
+			updateData();
+		},4000);
 		function updateData(){
 			d3.tsv("../data/"+current_data,function(error, data){
 				data.forEach(function(d){
