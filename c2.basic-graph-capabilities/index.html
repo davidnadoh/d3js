@@ -8,8 +8,8 @@
 	}
 	path{
 		stroke: steelblue;
-		stroke-width: 5;
-		fill:blue;
+		stroke-width: 1;
+		fill:none;
 	}
 	.axis path,
 	.axis line {
@@ -33,21 +33,24 @@
 		var y = d3.scale.linear().range([height,0]);
 
 		var xAxis = d3.svg.axis().scale(x)
-		.orient("bottom").ticks(5);
+			.orient("bottom")
+			.ticks(5);
 		
 		var yAxis = d3.svg.axis().scale(y)
-		.orient("left").ticks(9);
+			.orient("left")
+			.ticks(9);
 		
 		var valueline = d3.svg.line()
-		.x(function(d) { return x(d.date); })
-		.y(function(d) { return y(d.close); });
-		
+			.interpolate("cardinal-closed")
+			.x(function(d) { return x(d.date); })
+			.y(function(d) { return y(d.close); });
+			
 		var svg = d3.select("body")
-		.append("svg")
-		.attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + margin.bottom)
-		.append("g")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")"
+			.append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")"
 		);
 		
 		// Get the data
@@ -57,26 +60,29 @@
 				d.close = +d.close;
 			});
 			// Scale the range of the data
-			x.domain(d3.extent(data, function(d) { return d.date; }));
-			y.domain([0, d3.max(data, function(d) { return d.close; })]);
+			x
+				.domain(d3.extent(data, function(d) { return d.date; }));
+			y
+				.domain([0, d3.max(data, function(d) { return d.close; })]);
 			svg.append("path")
 				.attr("d", valueline(data));
 				
 			// Add the X Axis
 			svg.append("g")
-			.attr("class", "x axis")
-			.attr("transform", "translate(0," + height + ")")
-			.call(xAxis);
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + height + ")")
+				.call(xAxis);
 			
 
 			svg.append("text")
 				.attr("transform","translate("+ width/2 +","+ (height+margin.bottom) +")")
 				.style("text-anchor", "middle")
 				.text("Date");
+
 			// Add the Y Axis
 			svg.append("g")
-			.attr("class", "y axis")
-			.call(yAxis);
+				.attr("class", "y axis")
+				.call(yAxis);
 
 			svg.append("text")
 				.attr("transform","rotate(-90)")
@@ -86,6 +92,13 @@
 				.style("text-anchor", "middle")
 				.text("Value");
 
+			svg.append("text")
+				.attr("x", width/2)
+				.attr("y",0 - margin.top/2)
+				.attr("text-anchor","middle")
+				.style("font-size","16px")
+				.style("text-decoration","underline")
+				.text("Value vs Date Graph");
 
 		});
 	</script>
