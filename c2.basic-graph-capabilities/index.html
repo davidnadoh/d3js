@@ -34,7 +34,12 @@
 		fill: lightsteelblue;
 		stroke-width: 0;
 	}
-
+	
+	text.shadow {
+		stroke:black;
+		stroke-width:.5px;
+		opacity:0.55555;
+	}
 </style>
 <body>
 	<script type="text/javascript" src="../lib/d3.v3.js"></script>
@@ -59,7 +64,7 @@
 
 		var area = d3.svg.area()
 			.x(function(d){return x(d.date);})
-			.y0(0)
+			.y0(height)
 			.y1(function(d){return y(d.close);});
 		
 		var valueline = d3.svg.line()
@@ -110,10 +115,11 @@
 
 			svg.append("text")
 				.attr("x", width/2)
-				.attr("y",0 - margin.top/2)
+				.attr("y", 25 )
 				.attr("text-anchor","middle")
 				.style("font-size","16px")
 				.style("text-decoration","underline")
+				.attr("class","shadow")
 				.text("Value vs Date Graph");
 
 
