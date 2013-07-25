@@ -14,6 +14,7 @@
 	}
 	
 	.axis path,
+
 	.axis line {
 		fill: none;
 		stroke: grey;
@@ -67,11 +68,16 @@
 			.y0(height)
 			.y1(function(d){return y(d.close);});
 		
+			
 		var valueline = d3.svg.line()
 			.interpolate("linear")
 			.x(function(d) { return x(d.date); })
 			.y(function(d) { return y(d.close); });
-			
+
+		var valueline2 = d3.svg.line()
+			.x(function(d) { return x(d.date); })
+			.y(function(d) { return y(d.open); });
+
 		var svg = d3.select("body")
 			.append("svg")
 			.attr("width", width + margin.left + margin.right)
@@ -86,21 +92,28 @@
 			data.forEach(function(d) {
 				d.date = parseDate(d.date);
 				d.close = +d.close;
+				d.open = +d.open;
 			});
 			// Scale the range of the data
 			x
 				.domain(d3.extent(data, function(d) { return d.date; }));
 			y
-				.domain([0, d3.max(data, function(d) { return d.close; })]);
+				.domain([0, d3.max(data, function(d) { return Math.max(d.close,d.open); })]);
 			svg.append("path")
 				.datum(data)
 				.attr("class","area")
 				.attr("d",area);
 
+				
 			svg.append("path")
 				.attr("class", "line")
 				.attr("d", valueline(data))
-				
+
+			svg.append("path")
+				.attr("class", "line")
+				.style("stroke","red")
+				.attr("d", valueline2(data))
+
 			// Add the X Axis
 			svg.append("g")
 				.attr("class", "x axis")
