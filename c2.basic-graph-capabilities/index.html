@@ -65,19 +65,6 @@
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")"
 		);
 		
-		function make_x_axis() {
-			return d3.svg.axis()
-				.scale(x)
-				.orient("bottom")
-				.ticks(5);
-		}
-		function make_y_axis() {
-			return d3.svg.axis()
-				.scale(y)
-				.orient("left")
-				.ticks(5);
-		}
-
 
 		// Get the data
 		d3.tsv("../data/data.tsv", function(error, data) {
@@ -91,12 +78,14 @@
 			y
 				.domain([0, d3.max(data, function(d) { return d.close; })]);
 			svg.append("path")
-				.attr("d", valueline(data));
+				.attr("d", valueline(data))
+				.style("stroke-dasharray",("3,3"));
 				
 			// Add the X Axis
 			svg.append("g")
 				.attr("class", "x axis")
 				.attr("transform", "translate(0," + height + ")")
+				.style("stroke-dasharray",("3,3"))
 				.call(xAxis);
 			
 
@@ -108,6 +97,7 @@
 			// Add the Y Axis
 			svg.append("g")
 				.attr("class", "y axis")
+				.style("stroke-dasharray",("3,3"))
 				.call(yAxis);
 
 			svg.append("text")
@@ -125,20 +115,6 @@
 				.style("font-size","16px")
 				.style("text-decoration","underline")
 				.text("Value vs Date Graph");
-
-			svg.append("g")
-				.attr("class","grid")
-				.attr("transform", "translate(0,"+ height +")")
-				.call(make_x_axis()
-					.tickSize(-height,0,0)
-					.tickFormat("")
-				);
-			svg.append("g")
-				.attr("class","grid")
-				.call(make_y_axis()
-					.tickSize(-width,0,0)
-					.tickFormat("")
-				);
 
 		});
 	</script>
