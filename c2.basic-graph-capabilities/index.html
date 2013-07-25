@@ -45,8 +45,12 @@
 <body>
 	<script type="text/javascript" src="../lib/d3.v3.js"></script>
 
+	<div>
+		<input name="updateButton" type="button" value="update" onclick="updateData()"/>
+	</div>
+
 	<script>
-		var margin = {top: 30, right: 40, bottom: 70, left: 50},
+		var margin = {top: 30, right: 40, bottom: 70, left: 50}
 			width = 600 - margin.left - margin.right,
 			height = 270 - margin.top - margin.bottom;
 
@@ -94,7 +98,7 @@
 		
 
 		// Get the data
-		d3.tsv("../data/data.tsv", function(error, data) {
+		d3.tsv("../data/data2.tsv", function(error, data) {
 			data.forEach(function(d) {
 				d.date = parseDate(d.date);
 				d.close = +d.close;
@@ -158,7 +162,35 @@
 				.text("Value vs Date Graph");
 
 
-		});
+			});
+		var current_data = "data-alt.tsv";
+		function updateData(){
+			d3.tsv("../data/"+current_data,function(error, data){
+				data.forEach(function(d){
+					d.date = parseDate(d.date);
+					d.close = +d.close;
+				});
+				x.domain(d3.extent(data,function(d){return d.date;}));
+				y0.domain([0,d3.max(data,function(d){return d.close;})]);
+		
+				var svg = d3.select("body").transition();
+		
+				svg.select(".line")
+					.duration(750)
+					.attr("d",valueline(data));
+				svg.select(".x.axis")
+					.duration(750)
+					.call(xAxis);
+				svg.select(".y.axis")
+					.duration(750)
+					.call(yAxis);
+			});
+			current_data = current_data === "data-alt.tsv"
+					? "data2.tsv"
+					: "data-alt.tsv";
+			
+
+		}
 	</script>
 </body>
 </html>
