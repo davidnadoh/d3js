@@ -22,25 +22,11 @@
 		shape-rendering: crispEdges;
 	}
 
-	.grid .tick {
-		stroke: lightgrey;
-		opacity: 0.7;
-	}
-	//avoid double rendering axis lines
-	.grid path {
-		stroke-width: 0;
-	}
-
 	.area {
 		fill: lightsteelblue;
 		stroke-width: 0;
 	}
 	
-	text.shadow {
-		stroke:black;
-		stroke-width:.5px;
-		opacity:0.55555;
-	}
 </style>
 <body>
 	<script type="text/javascript" src="../lib/d3.v3.js"></script>
@@ -53,36 +39,27 @@
 		var parseDate = d3.time.format("%d-%b-%y").parse;
 
 		var x = d3.time.scale().range([0,width]);
-		var y0 = d3.scale.linear().range([height,0]);
-		var y1 = d3.scale.linear().range([height,0]);
+		var y = d3.scale.linear().range([height,0]);
 		
 		var xAxis = d3.svg.axis().scale(x)
 			.orient("bottom")
 			.ticks(10)
 			.tickFormat(d3.time.format("%Y-%m-%d"));
 		
-		var yAxis = d3.svg.axis().scale(y0)
+		var yAxis = d3.svg.axis().scale(y)
 			.orient("left")
-			.ticks(5);
-
-		var yAxisRight = d3.svg.axis().scale(y1)
-			.orient("right")
 			.ticks(5);
 
 		var area = d3.svg.area()
 			.x(function(d){return x(d.date);})
-			.y0(height)
-			.y1(function(d){return y1(d.close);});
+			.y(height)
+			.y(function(d){return y(d.close);});
 		
 			
 		var valueline = d3.svg.line()
 			.interpolate("linear")
 			.x(function(d) { return x(d.date); })
-			.y(function(d) { return y0(d.close); });
-
-		var valueline2 = d3.svg.line()
-			.x(function(d) { return x(d.date); })
-			.y(function(d) { return y1(d.open); });
+			.y(function(d) { return y(d.close); });
 
 		var svg = d3.select("body")
 			.append("svg")
@@ -104,10 +81,8 @@
 			x
 				.domain(d3.extent(data, function(d) { return d.date; }));
 				
-			y0
+			y
 				.domain([0, d3.max(data, function(d) { return Math.max(d.close); })]);
-			y1
-				.domain([0, d3.max(data, function(d) { return Math.max(d.open); })]);
 			svg.append("path")
 				.datum(data)
 				.attr("class","area")
@@ -117,12 +92,13 @@
 			svg.append("path")
 				.attr("class", "line")
 				.attr("d", valueline(data))
-
-			svg.append("path")
-				.attr("class", "line")
-				.style("stroke","red")
-				.attr("d", valueline2(data))
-
+			
+			svg.selectAll("dot")
+				.data(data)
+				.enter().append("circle")
+					.attr("r",3.5)
+					.attr("cx",function(d){return x(d.date);})
+					.attr("cy",function(d){return y(d.close);});
 			// Add the X Axis
 			svg.append("g")
 				.attr("class", "x axis")
@@ -142,54 +118,8 @@
 				.attr("class", "y axis")
 				.call(yAxis);
 
-			svg.append("g")
-				.attr("class","y axis")
-				.attr("transform","translate("+width+",0)")
-				.style("fill","red")
-				.call(yAxisRight);
 
-			svg.append("text")
-				.attr("x", width/2)
-				.attr("y", 25 )
-				.attr("text-anchor","middle")
-				.style("font-size","16px")
-				.style("text-decoration","underline")
-				.attr("class","shadow")
-				.text("Value vs Date Graph");
-
-
-			});
-		var current_data = "data-alt.tsv";
-		var dynanmicUpdate = setInterval(function(){
-			updateData();
-		},4000);
-		function updateData(){
-			d3.tsv("../data/"+current_data,function(error, data){
-				data.forEach(function(d){
-					d.date = parseDate(d.date);
-					d.close = +d.close;
-				});
-				x.domain(d3.extent(data,function(d){return d.date;}));
-				y0.domain([0,d3.max(data,function(d){return d.close;})]);
-		
-				var svg = d3.select("body").transition();
-		
-				svg.select(".line")
-					.duration(750)
-					.attr("d",valueline(data));
-				svg.select(".x.axis")
-					.duration(750)
-					.call(xAxis);
-				svg.select(".y.axis")
-					.duration(750)
-					.call(yAxis);
-			});
-			current_data = current_data === "data-alt.tsv"
-					? "data2.tsv"
-					: "data-alt.tsv";
-			
-
-		}
+		});
 	</script>
 </body>
 </html>
