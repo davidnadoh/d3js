@@ -26,6 +26,19 @@
 		fill: lightsteelblue;
 		stroke-width: 0;
 	}
+
+	div.tooltip {
+		position: absolute;
+		text-align: center;
+		width: 60px;
+		height: 28px;
+		padding: 2px;
+		font: 12px sans-serif;
+		background: lightsteelblue;
+		border:0px;
+		border-radius: 8px;
+		pointer-events:none;
+	}
 	
 </style>
 <body>
@@ -37,6 +50,7 @@
 			height = 270 - margin.top - margin.bottom;
 
 		var parseDate = d3.time.format("%d-%b-%y").parse;
+		var formatTime = d3.time.format("%e %B");
 
 		var x = d3.time.scale().range([0,width]);
 		var y = d3.scale.linear().range([height,0]);
@@ -60,6 +74,10 @@
 			.interpolate("linear")
 			.x(function(d) { return x(d.date); })
 			.y(function(d) { return y(d.close); });
+
+		var div = d3.select("body").append("div")
+			.attr("class","tooltip")
+			.attr("opacity",0);
 
 		var svg = d3.select("body")
 			.append("svg")
@@ -96,9 +114,22 @@
 			svg.selectAll("dot")
 				.data(data)
 				.enter().append("circle")
-					.attr("r",3.5)
+					.attr("r",5)
 					.attr("cx",function(d){return x(d.date);})
-					.attr("cy",function(d){return y(d.close);});
+					.attr("cy",function(d){return y(d.close);})
+					.on("mouseover",function(d){
+						div.transition()
+							.duration(200)
+							.style("opacity",.9);
+						div.html(formatTime(d.date)+"<br/>"+d.close)
+							.style("left",(d3.event.pageX)+"px")
+							.style("top",(d3.event.pageY-28)+"px");
+						})
+					.on("mouseout",function(d){
+						div.transition()
+							.duration(500)
+							.style("opacity",0);
+					});
 			// Add the X Axis
 			svg.append("g")
 				.attr("class", "x axis")
